@@ -1,0 +1,314 @@
+From 43c662718a52c29209c7e2de795396df76328a40 Mon Sep 17 00:00:00 2001
+From: Tu Do <tdng91@gmail.com>
+Date: Wed, 8 Aug 2018 19:00:42 +0700
+Subject: [PATCH] Init Setup, Model, Collection, Grid Collection, Controller
+ Grid, Layout for Grid
+
+---
+ app/code/MW/Ddate/Controller/Adminhtml/Dtime.php   | 30 +++++++++++
+ .../MW/Ddate/Controller/Adminhtml/Dtime/Index.php  | 17 ++++++
+ app/code/MW/Ddate/Model/Dtime.php                  | 17 ++++++
+ app/code/MW/Ddate/Model/ResourceModel/Dtime.php    | 15 ++++++
+ .../Ddate/Model/ResourceModel/Dtime/Collection.php | 15 ++++++
+ .../Model/ResourceModel/Grid/DtimeCollection.php   |  9 ++++
+ app/code/MW/Ddate/Setup/InstallSchema.php          |  4 +-
+ .../view/adminhtml/layout/mw_ddate_dtime_block.xml | 63 ++++++++--------------
+ .../view/adminhtml/layout/mw_ddate_dtime_index.xml |  5 ++
+ 9 files changed, 133 insertions(+), 42 deletions(-)
+ create mode 100644 app/code/MW/Ddate/Controller/Adminhtml/Dtime.php
+ create mode 100644 app/code/MW/Ddate/Controller/Adminhtml/Dtime/Index.php
+ create mode 100644 app/code/MW/Ddate/Model/Dtime.php
+ create mode 100644 app/code/MW/Ddate/Model/ResourceModel/Dtime.php
+ create mode 100644 app/code/MW/Ddate/Model/ResourceModel/Dtime/Collection.php
+ create mode 100644 app/code/MW/Ddate/Model/ResourceModel/Grid/DtimeCollection.php
+
+diff --git a/app/code/MW/Ddate/Controller/Adminhtml/Dtime.php b/app/code/MW/Ddate/Controller/Adminhtml/Dtime.php
+new file mode 100644
+index 0000000..a1ad70c
+--- /dev/null
++++ b/app/code/MW/Ddate/Controller/Adminhtml/Dtime.php
+@@ -0,0 +1,30 @@
++<?php
++namespace MW\Ddate\Controller\Adminhtml;
++
++use Magento\Backend\App\Action;
++
++abstract class Dtime extends Action
++{
++    /**
++     * Init action
++     *
++     * @return $this
++     */
++    protected function _initAction()
++    {
++        $this->_view->loadLayout();
++        $this->_setActiveMenu('MW_Ddate::mw_ddate_items')
++            ->_addBreadcrumb(__('Delivery Schedule'), __('Delivery Schedule'));
++        return $this;
++    }
++
++    /**
++     * Is access to section allowed
++     *
++     * @return bool
++     */
++    protected function _isAllowed()
++    {
++        return $this->_authorization->isAllowed('MW_Ddate::mw_ddate_items');
++    }
++}
+diff --git a/app/code/MW/Ddate/Controller/Adminhtml/Dtime/Index.php b/app/code/MW/Ddate/Controller/Adminhtml/Dtime/Index.php
+new file mode 100644
+index 0000000..db594f1
+--- /dev/null
++++ b/app/code/MW/Ddate/Controller/Adminhtml/Dtime/Index.php
+@@ -0,0 +1,17 @@
++<?php
++namespace MW\Ddate\Controller\Adminhtml\Dtime;
++
++use MW\Ddate\Controller\Adminhtml\Dtime;
++
++class Index extends Dtime
++{
++    /**
++     * @return void
++     */
++    public function execute()
++    {
++        $this->_initAction()->_addBreadcrumb(__('Manage Delivery Schedule'), __('Manage Delivery Schedule'));
++        $this->_view->getPage()->getConfig()->getTitle()->prepend(__('Manage Delivery Schedule'));
++        $this->_view->renderLayout();
++    }
++}
+diff --git a/app/code/MW/Ddate/Model/Dtime.php b/app/code/MW/Ddate/Model/Dtime.php
+new file mode 100644
+index 0000000..1525576
+--- /dev/null
++++ b/app/code/MW/Ddate/Model/Dtime.php
+@@ -0,0 +1,17 @@
++<?php
++namespace MW\Ddate\Model;
++
++class Dtime extends \Magento\Framework\Model\AbstractModel
++{
++    /**
++     * Model construct that should be used for object initialization
++     *
++     * @return void
++     */
++    protected function _construct()
++    {
++        parent::_construct();
++        $this->_init('MW\Ddate\Model\ResourceModel\Dtime');
++//        $this->setIdFieldName('dtime_id');
++    }
++}
+diff --git a/app/code/MW/Ddate/Model/ResourceModel/Dtime.php b/app/code/MW/Ddate/Model/ResourceModel/Dtime.php
+new file mode 100644
+index 0000000..9130d27
+--- /dev/null
++++ b/app/code/MW/Ddate/Model/ResourceModel/Dtime.php
+@@ -0,0 +1,15 @@
++<?php
++namespace MW\Ddate\Model\ResourceModel;
++
++class Dtime extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
++{
++    /**
++     * Resource initialization
++     *
++     * @return void
++     */
++    protected function _construct()
++    {
++        $this->_init('mwdtime', 'dtime_id');
++    }
++}
+\ No newline at end of file
+diff --git a/app/code/MW/Ddate/Model/ResourceModel/Dtime/Collection.php b/app/code/MW/Ddate/Model/ResourceModel/Dtime/Collection.php
+new file mode 100644
+index 0000000..b8e0719
+--- /dev/null
++++ b/app/code/MW/Ddate/Model/ResourceModel/Dtime/Collection.php
+@@ -0,0 +1,15 @@
++<?php
++namespace MW\Ddate\Model\ResourceModel\Dtime;
++
++class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
++{
++    /**
++     * Initialization
++     *
++     * @return void
++     */
++    protected function _construct()
++    {
++        $this->_init('MW\Ddate\Model\Dtime', 'MW\Ddate\Model\ResourceModel\Dtime');
++    }
++}
+diff --git a/app/code/MW/Ddate/Model/ResourceModel/Grid/DtimeCollection.php b/app/code/MW/Ddate/Model/ResourceModel/Grid/DtimeCollection.php
+new file mode 100644
+index 0000000..eff581d
+--- /dev/null
++++ b/app/code/MW/Ddate/Model/ResourceModel/Grid/DtimeCollection.php
+@@ -0,0 +1,9 @@
++<?php
++namespace MW\Ddate\Model\ResourceModel\Grid;
++
++use MW\Ddate\Model\ResourceModel\Dtime\Collection;
++
++class DtimeCollection extends Collection
++{
++
++}
+diff --git a/app/code/MW/Ddate/Setup/InstallSchema.php b/app/code/MW/Ddate/Setup/InstallSchema.php
+index a5ed812..ea1a714 100644
+--- a/app/code/MW/Ddate/Setup/InstallSchema.php
++++ b/app/code/MW/Ddate/Setup/InstallSchema.php
+@@ -163,11 +163,11 @@ class InstallSchema implements InstallSchemaInterface
+                     'Dtime'
+                 )
+                 ->addColumn(
+-                    'status',
++                    'is_active',
+                     \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                     '1',
+                     ['nullable' => false, 'default' => '0'],
+-                    'Status'
++                    'is_active'
+                 )
+                 ->addColumn(
+                     'mon',
+diff --git a/app/code/MW/Ddate/view/adminhtml/layout/mw_ddate_dtime_block.xml b/app/code/MW/Ddate/view/adminhtml/layout/mw_ddate_dtime_block.xml
+index d66ff34..5498c7c 100644
+--- a/app/code/MW/Ddate/view/adminhtml/layout/mw_ddate_dtime_block.xml
++++ b/app/code/MW/Ddate/view/adminhtml/layout/mw_ddate_dtime_block.xml
+@@ -1,57 +1,49 @@
+ <?xml version="1.0"?>
+ <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+     <body>
+-        <referenceBlock name="adminhtml.promo.catalog.grid.container">
+-            <block class="Magento\Backend\Block\Widget\Grid" name="promo.catalog.grid" as="grid">
++        <referenceBlock name="adminhtml.ddate.dtime.grid.container">
++            <block class="Magento\Backend\Block\Widget\Grid" name="ddate.dtime.grid" as="grid">
+                 <arguments>
+-                    <argument name="id" xsi:type="string">promo_catalog_grid</argument>
+-                    <argument name="dataSource" xsi:type="object">MW\FreeGift\Model\ResourceModel\Grid\GridRuleCollection</argument>
+-                    <argument name="default_sort" xsi:type="string">name</argument>
++                    <argument name="id" xsi:type="string">mw_ddate_dtime_grid</argument>
++                    <argument name="dataSource" xsi:type="object">MW\Ddate\Model\ResourceModel\Grid\DtimeCollection</argument>
++                    <argument name="default_sort" xsi:type="string">dtime_id</argument>
+                     <argument name="default_dir" xsi:type="string">ASC</argument>
+                     <argument name="save_parameters_in_session" xsi:type="string">1</argument>
+                 </arguments>
+-                <block class="Magento\Backend\Block\Widget\Grid\ColumnSet" name="promo.catalog.grid.columnSet" as="grid.columnSet">
++                <block class="Magento\Backend\Block\Widget\Grid\ColumnSet" name="ddate.dtime.grid.columnSet" as="grid.columnSet">
+                     <arguments>
+                         <argument name="rowUrl" xsi:type="array">
+-                            <item name="path" xsi:type="string">mw_freegift/*/edit</item>
++                            <item name="path" xsi:type="string">*/*/edit</item>
+                             <item name="extraParamsTemplate" xsi:type="array">
+-                                <item name="id" xsi:type="string">getRuleId</item>
++                                <item name="id" xsi:type="string">getDtimeId</item>
+                             </item>
+                         </argument>
+                     </arguments>
+-                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="rule_id">
++                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="dtime_id">
+                         <arguments>
+                             <argument name="header" xsi:type="string" translate="true">ID</argument>
+-                            <argument name="index" xsi:type="string">rule_id</argument>
++                            <argument name="index" xsi:type="string">dtime_id</argument>
+                             <argument name="type" xsi:type="string">text</argument>
+                             <argument name="column_css_class" xsi:type="string">col-id</argument>
+                             <argument name="header_css_class" xsi:type="string">col-id</argument>
+                         </arguments>
+                     </block>
+-                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="name">
++                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="dtime">
+                         <arguments>
+-                            <argument name="header" xsi:type="string" translate="true">Rule name</argument>
+-                            <argument name="index" xsi:type="string">name</argument>
++                            <argument name="header" xsi:type="string" translate="true">Delivery slot Time</argument>
++                            <argument name="index" xsi:type="string">dtime</argument>
+                             <argument name="type" xsi:type="string">text</argument>
++                            <argument name="column_css_class" xsi:type="string">col-dtime</argument>
++                            <argument name="header_css_class" xsi:type="string">col-dtime</argument>
+                         </arguments>
+                     </block>
+-                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="from_date">
++                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="dtimesort">
+                         <arguments>
+-                            <argument name="header" xsi:type="string" translate="true">Date Start</argument>
+-                            <argument name="type" xsi:type="string">date</argument>
+-                            <argument name="index" xsi:type="string">from_date</argument>
+-                            <argument name="column_css_class" xsi:type="string">col-date</argument>
+-                            <argument name="header_css_class" xsi:type="string">col-date</argument>
+-                        </arguments>
+-                    </block>
+-                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="to_date">
+-                        <arguments>
+-                            <argument name="header" xsi:type="string" translate="true">Date Expire</argument>
+-                            <argument name="type" xsi:type="string">date</argument>
+-                            <argument name="default" xsi:type="string">--</argument>
+-                            <argument name="index" xsi:type="string">to_date</argument>
+-                            <argument name="column_css_class" xsi:type="string">col-date</argument>
+-                            <argument name="header_css_class" xsi:type="string">col-date</argument>
++                            <argument name="header" xsi:type="string" translate="true">Slot time sorting</argument>
++                            <argument name="index" xsi:type="string">dtimesort</argument>
++                            <argument name="type" xsi:type="string">text</argument>
++                            <argument name="column_css_class" xsi:type="string">col-dtimesort</argument>
++                            <argument name="header_css_class" xsi:type="string">col-dtimesort</argument>
+                         </arguments>
+                     </block>
+                     <block class="Magento\Backend\Block\Widget\Grid\Column" as="is_active">
+@@ -71,29 +63,20 @@
+                             </argument>
+                         </arguments>
+                     </block>
+-                    <block class="Magento\Backend\Block\Widget\Grid\Column\Multistore" as="rule_website">
+-                        <arguments>
+-                            <argument name="header" xsi:type="string" translate="true">Web Site</argument>
+-                            <argument name="index" xsi:type="string">website_ids</argument>
+-                            <argument name="sortable" xsi:type="string">0</argument>
+-                            <argument name="type" xsi:type="string">options</argument>
+-                            <argument name="options" xsi:type="options" model="Magento\Config\Model\Config\Source\Website\OptionHash"/>
+-                        </arguments>
+-                    </block>
+                     <block class="Magento\Backend\Block\Widget\Grid\Column" as="action">
+                         <arguments>
+                             <argument name="type" xsi:type="string">action</argument>
+                             <argument name="header" xsi:type="string" translate="true">Action</argument>
+                             <argument name="filter" xsi:type="string">0</argument>
+                             <argument name="sortable" xsi:type="string">0</argument>
+-                            <argument name="index" xsi:type="string">rule_id</argument>
++                            <argument name="index" xsi:type="string">dtime_id</argument>
+                             <argument name="actions" xsi:type="array">
+                                 <item name="edit" xsi:type="array">
+                                     <item name="caption" xsi:type="string" translate="true">Edit</item>
+                                     <item name="url" xsi:type="array">
+                                         <item name="base" xsi:type="string">*/*/edit</item>
+                                     </item>
+-                                    <item name="field" xsi:type="string">id</item>
++                                    <item name="field" xsi:type="string">dtime_id</item>
+                                 </item>
+                             </argument>
+                         </arguments>
+diff --git a/app/code/MW/Ddate/view/adminhtml/layout/mw_ddate_dtime_index.xml b/app/code/MW/Ddate/view/adminhtml/layout/mw_ddate_dtime_index.xml
+index 0e2d3c5..7c21c2e 100644
+--- a/app/code/MW/Ddate/view/adminhtml/layout/mw_ddate_dtime_index.xml
++++ b/app/code/MW/Ddate/view/adminhtml/layout/mw_ddate_dtime_index.xml
+@@ -1,4 +1,9 @@
+ <?xml version="1.0"?>
+ <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+     <update handle="mw_ddate_dtime_block"/>
++    <body>
++        <referenceContainer name="content">
++            <block class="Magento\Backend\Block\Template" name="adminhtml.ddate.dtime.grid.container"/>
++        </referenceContainer>
++    </body>
+ </page>
+-- 
+2.16.3
+
