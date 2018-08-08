@@ -1,5 +1,5 @@
 {
-  "name": "mageworldofficial/deliveryschedule",
+  "name": "mageworldofficial/ddate",
   "description": "MageWorld - Advance Delivery Schedule module",
   "require": {
     "php": "~5.5.0|~5.6.0|~7.0.0|~7.1.0"
@@ -15,7 +15,7 @@
       "registration.php"
     ],
     "psr-4": {
-      "MW\\DeliverySchedule\\": ""
+      "MW\\Ddate\\": ""
     }
   }
 }
