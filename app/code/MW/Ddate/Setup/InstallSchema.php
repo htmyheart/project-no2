@@ -163,11 +163,11 @@ class InstallSchema implements InstallSchemaInterface
                     'Dtime'
                 )
                 ->addColumn(
-                    'status',
+                    'is_active',
                     \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
                     '1',
                     ['nullable' => false, 'default' => '0'],
-                    'Status'
+                    'is_active'
                 )
                 ->addColumn(
                     'mon',
